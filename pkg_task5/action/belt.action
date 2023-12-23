@@ -1,0 +1,9 @@
+# goal
+string type
+float32 x
+---
+# result
+bool flag
+---
+# feedback
+bool feedback

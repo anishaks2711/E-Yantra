@@ -1,0 +1,40 @@
+<launch>
+    <!-- Launch ros iot bridge -->
+    <rosparam file ="$(find pkg_ros_iot_bridge)/config/config_pyiot.yaml"/>
+    <node pkg="pkg_ros_iot_bridge" type="node_action_server_ros_iot_bridge.py" name="node_action_server_ros_iot_bridge" output="screen"/>
+
+    <!-- Launch task5 gazebo components -->
+    <include file="$(find pkg_vb_sim)/launch/task5_simulation.launch" />
+
+    <!-- Load gripper service check -->
+    <rosparam file ="$(find pkg_task5)/config/gripper_config.yaml"/>
+
+    <!-- Launch two move_group nodes for the two UR5 Arms -->
+    <include file="$(find pkg_vb_sim)/launch/two_ur5_move_group.launch" />
+
+    <group ns="ur5_1">
+        <!-- Add shelf to Moveit! Planning Scene in RViz -->
+        <arg name="scene_file" default="$(find pkg_task5)/config/rviz/ur5_1_with_shelf.scene"/>
+        <node name = "moveit_publish_scene_from_text" pkg= "moveit_ros_planning" type ="moveit_publish_scene_from_text" args= "$(arg scene_file)"/>
+    </group>
+    
+    <!-- Run Server node -->
+    <!-- <node name= "node_t5_server" pkg= "pkg_task5" type="node_t5_server.py"/> -->
+
+    <!-- Run Client node -->
+    <!-- <node name= "node_t5_client" pkg= "pkg_task5" type="node_t5_client.py"/> -->
+
+    <!-- Run ur5_1 node -->
+    <!-- <node name= "node_t5_play" pkg= "pkg_task5" type="node_t5_play.py"/> -->
+
+    <!-- Recording Bag File for Submission -->
+    <arg name="record" default="false"/>
+    <arg name="rec_name" default="t5.bag"/>
+
+    <group if="$(arg record)">
+        <node name="rosbag_record_pick" pkg="rosbag" type="record"
+       args="record -O $(find pkg_task5)/bag_files/$(arg rec_name) --chunksize=10 /eyrc/vb/ur5_1/vacuum_gripper/logical_camera/ur5_1 /eyrc/vb/ur5_2/vacuum_gripper/logical_camera/ur5_2" output="screen"/>
+    </group>
+	
+	
+</launch>
